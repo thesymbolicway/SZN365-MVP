@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "227817894991",
+    "project_id": "szn365-mvp",
+    "storage_bucket": "szn365-mvp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:227817894991:android:dfd3b3839a281feb47663a",
+        "android_client_info": {
+          "package_name": "com.app.szn365"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBkPdToM4TrCCEaFmaLvK5DN8m2zyjluJE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:227817894991:android:a3de6e3174ef970347663a",
+        "android_client_info": {
+          "package_name": "com.szn365.macroapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBkPdToM4TrCCEaFmaLvK5DN8m2zyjluJE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
