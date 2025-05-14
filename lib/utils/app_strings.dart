@@ -1,12 +1,19 @@
 class AppStrings {
   static const welcome = 'Welcome';
+
   static const chooseYourGoal = "Choose Your Goal";
+
   static const letUsTailorYourPlanToYourFitnessGoal =
       "Let us tailor your plan to your fitness goal.";
+
   static const goalLose = 'Lose Weight';
+
   static const goalGain = 'Gain Muscle';
+
   static const goalMaintain = 'Maintain Weight';
+
   static const male = "male";
+
   static const maleM = "Male";
 
   static const tellUsAboutYou = "Tell Us About You";
@@ -68,6 +75,7 @@ class AppStrings {
   static const searchFood = "Search food...";
 
   static const noFoodLoggedYet = 'No food logged yet!';
+
   static const startTrackingWhatYouEatToSeeYourProgress =
       'Start tracking what you eat to see your progress.';
 

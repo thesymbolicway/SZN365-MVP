@@ -8,7 +8,7 @@ class AppTheme {
       scaffoldBackgroundColor: AppColors.black,
       primaryColor: AppColors.limeGreen,
       brightness: Brightness.dark,
-      textSelectionTheme: TextSelectionThemeData(  cursorColor: Colors.white,),
+      textSelectionTheme: TextSelectionThemeData(cursorColor: Colors.white,),
       fontFamily: 'Poppins',
       textTheme:  TextTheme(
         headlineLarge: TextStyle(

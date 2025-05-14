@@ -9,7 +9,7 @@ class SznApp extends StatelessWidget {
   Widget build(BuildContext context) {
       return MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Szn 365',
+        title: 'SZN 365',
         theme: AppTheme.darkTheme,
         initialRoute: '/',
         routes: appRoutes,

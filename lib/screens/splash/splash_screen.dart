@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../widgets/gradient_background.dart';
+import '../../widgets/gradient_background.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
