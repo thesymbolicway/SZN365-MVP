@@ -7,7 +7,7 @@ part of 'app_data.dart';
 // **************************************************************************
 
 AppUser _$AppUserFromJson(Map<String, dynamic> json) => AppUser(
-  id: json['id'] as String,
+  id: json['id'] as String?,
   weight: json['weight'] as String?,
   height: json['height'] as String?,
   age: json['age'] as String?,

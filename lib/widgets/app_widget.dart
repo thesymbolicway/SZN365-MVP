@@ -1,16 +1,23 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import '../utils/colors.dart';
 
-Widget buildTextField({required BuildContext context,
+Widget buildTextField({
+  required TextEditingController controller,
+  required BuildContext context,
   required String label,
   required IconData icon,
-  required void Function(String) onChanged,
+  Function(String)? onChanged,
   required String? Function(String?) validator,
+  Function()? onTap,
+  bool? readOnly,
+  FocusNode? focusNode,
+  bool canRequestFocus = true,
+  bool showDecimal = false,
 }) {
   return TextFormField(
     style:  Theme.of(context).textTheme.bodyMedium,
+    controller: controller,
     decoration: InputDecoration(
       labelText: label,
       labelStyle: Theme.of(context).textTheme.bodyMedium,
@@ -21,10 +28,18 @@ Widget buildTextField({required BuildContext context,
         borderSide: BorderSide(color: AppColors.primary, width: 2),
       ),
     ),
-    keyboardType: TextInputType.number,
-    onChanged: onChanged,
+    keyboardType: TextInputType.numberWithOptions(decimal: showDecimal, signed: false),
+    textInputAction: TextInputAction.done,
+    readOnly: readOnly ?? false,
+    focusNode: focusNode,
+    canRequestFocus: canRequestFocus,
     validator: validator,
-    textInputAction: TextInputAction.next,
+    onTap: onTap,
+    onChanged: onChanged,
+    onTapOutside: (_) => FocusScope.of(context).unfocus(),
+    onFieldSubmitted: (value) {
+      FocusScope.of(context).unfocus();
+    },
   );
 }
 
