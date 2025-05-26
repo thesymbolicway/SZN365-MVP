@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../widgets/gradient_background.dart';
 
@@ -14,13 +15,23 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        Navigator.pushReplacementNamed(context, '/boarding');
-      }
-    });
+    _checkLoginStatus();
   }
+
+  Future<void> _checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('userId');
+
+    await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
+
+    if (userId != null && userId.isNotEmpty) {
+      Navigator.pushReplacementNamed(context, '/dashboard');
+    } else {
+      Navigator.pushReplacementNamed(context, '/boarding');
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {

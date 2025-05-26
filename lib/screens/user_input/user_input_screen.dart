@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:szn365/models/app_data.dart';
+import 'package:szn365/services/firestore_service.dart';
 import '../../consts/constant.dart';
 import '../../providers/user_provider.dart';
 import '../../utils/app_strings.dart';
@@ -9,19 +11,28 @@ import '../../utils/colors.dart';
 import '../../utils/validators.dart';
 import '../../widgets/app_widget.dart';
 import '../../widgets/gradient_background.dart';
+import '../dash_board/dashboard_screen.dart';
 import 'height_picker_bottom_sheet.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class UserInputScreen extends ConsumerStatefulWidget {
-  String goal = AppStrings.goalMaintain;
+  final String goal;
 
-  UserInputScreen({super.key, required this.goal});
+  const UserInputScreen({super.key, this.goal = AppStrings.goalMaintain});
 
   @override
   ConsumerState<UserInputScreen> createState() => _UserInputScreenState();
 }
 
 class _UserInputScreenState extends ConsumerState<UserInputScreen> {
+  /// Text editing controllers
+  final TextEditingController _weightCont = TextEditingController();
+  final TextEditingController _heightCont = TextEditingController();
+  final TextEditingController _ageCont = TextEditingController();
+
+  /// Focus nodes to control text filed focus
+  final FocusNode _ageFocus = FocusNode();
+
   final _formKey = GlobalKey<FormState>();
   String heightDisplay = AppStrings.height;
   String gender = AppStrings.male;
@@ -63,6 +74,8 @@ class _UserInputScreenState extends ConsumerState<UserInputScreen> {
                   ),
                   const SizedBox(height: 16),
                   buildTextField(
+                    controller: _weightCont,
+                    showDecimal: true,
                     context: context,
                     label: AppStrings.weight,
                     icon: Icons.monitor_weight_outlined,
@@ -70,12 +83,18 @@ class _UserInputScreenState extends ConsumerState<UserInputScreen> {
                       final input = double.tryParse(val) ?? 0;
                       weight = input;
                     },
-                    validator: AppValidators.getValidator(
+                    validator: AppValidators.getWeightValidator(
                       errorText: AppStrings.enterValidWeight,
                     ),
                   ),
                   const SizedBox(height: 16),
-                  GestureDetector(
+                  buildTextField(
+                    controller: _heightCont,
+                    context: context,
+                    label: AppStrings.height,
+                    icon: Icons.height,
+                    readOnly: true,
+                    canRequestFocus: false,
                     onTap: () {
                       showHeightPicker(
                         context: context,
@@ -83,45 +102,29 @@ class _UserInputScreenState extends ConsumerState<UserInputScreen> {
                         onHeightSelected: (heightCm) {
                           setState(() {
                             selectedHeightInCm = heightCm;
-                            heightDisplay = "${heightCm.toStringAsFixed(1)} cm";
+                            heightDisplay = "${heightCm.toStringAsFixed(2)} cm";
                             height = heightCm;
+                            _heightCont.text = heightCm.toStringAsFixed(2);
                             isHeightValid = true;
+                            _ageFocus.requestFocus();
                           });
                         },
                       );
                     },
-                    child: InputDecorator(
-                      decoration: InputDecoration(
-                        labelText: AppStrings.height,
-                        prefixIcon: Icon(
-                          Icons.height,
-                          color: AppColors.primary,
-                        ),
-                        hintText: heightDisplay,
-                        errorText:
-                            isHeightValid ? null : AppStrings.enterValidHeight,
-                        border: const OutlineInputBorder(),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: AppColors.primary,
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                      child: Text(
-                        heightDisplay,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
+                    validator: AppValidators.getHeightValidatorInCm(
+                      errorText: AppStrings.enterValidHeight,
                     ),
                   ),
 
                   const SizedBox(height: 16),
                   buildTextField(
+                    controller: _ageCont,
+                    focusNode: _ageFocus,
                     context: context,
                     label: AppStrings.age,
                     icon: Icons.cake_outlined,
                     onChanged: (val) => age = int.tryParse(val) ?? 0,
-                    validator: AppValidators.getValidator(
+                    validator: AppValidators.getAgeValidator(
                       errorText: AppStrings.enterValidAge,
                     ),
                   ),
@@ -185,7 +188,7 @@ class _UserInputScreenState extends ConsumerState<UserInputScreen> {
                     context,
                     label: AppStrings.continueText,
                     icon: Icons.arrow_forward,
-                    callback: ()  {
+                    callback: ()  async {
                       setState(() {
                         isHeightValid = selectedHeightInCm > 0;
                       });
@@ -200,9 +203,18 @@ class _UserInputScreenState extends ConsumerState<UserInputScreen> {
                           activityLevel: activityLevel.toString(),
                           goal: widget.goal,
                         );
+                        await userRef.setUser(user);
 
-                         userRef.setUser(user);
-                        userRef.getTDECalculation(user);
+                        await  userRef.getTDECalculation(user);
+
+                        final prefs = await SharedPreferences.getInstance();
+                        prefs.setString('userId', FireBaseService().getFirebaseUserId()??'');
+
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          '/dashboard',
+                              (route) => false,
+                        );
 
                       }
                     },

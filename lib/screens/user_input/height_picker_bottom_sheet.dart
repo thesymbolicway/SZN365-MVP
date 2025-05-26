@@ -22,7 +22,6 @@ class HeightPickerBottomSheet extends StatefulWidget {
 class _HeightPickerBottomSheetState extends State<HeightPickerBottomSheet> {
   bool isCm = true;
   int cm = 170;
-
   int feet = 5;
   int inches = 7;
 
