@@ -135,7 +135,7 @@ Widget buildPlaceholderCard(String title,BuildContext context,{double? width}) {
       if (title == 'Food Log') {
         Navigator.pushNamed(context, '/food-log');
       } else if (title == 'Meal Plan') {
-      //  Navigator.pushNamed(context, '/meal-plan');
+        Navigator.pushNamed(context, '/meal_plan');
       }
     },
     child: Card(
