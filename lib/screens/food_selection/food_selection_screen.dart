@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../providers/food_provider.dart';
 import '../../utils/app_strings.dart';
 import '../../utils/colors.dart';
@@ -59,46 +60,53 @@ class FoodSelectionScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 24),
               Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.all(0.0),
-                  itemCount: dummyItems.length,
-                  itemBuilder: (context, index) {
-                    final item = dummyItems[index];
-                    return Card(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      elevation: 2,
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                        leading: Icon(Icons.fastfood, color:  AppColors.primary),
-                        title: Text(
-                          item.foodName,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        subtitle: Padding(
-                          padding: const EdgeInsets.only(top: 4.0),
-                          child: Text(
-                            'P:${item.protein} | C:${item.carbs} | F:${item.fats}',
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ),
-                        trailing: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              '${item.calories} kcal',
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: AppColors.primary,
+                child: ListView(
+                  children: [
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.all(0.0),
+                      itemCount: dummyItems.length,
+                      itemBuilder: (context, index) {
+                        final item = dummyItems[index];
+                        return Card(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          elevation: 2,
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          child: ListTile(
+                            contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                            leading: Icon(Icons.fastfood, color:  AppColors.primary, size: 23.w),
+                            title: Text(
+                              item.foodName,
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                            subtitle: Padding(
+                              padding: EdgeInsets.only(top: 5.h),
+                              child: Text(
+                                'P:${item.protein} | C:${item.carbs} | F:${item.fats}',
+                                style: Theme.of(context).textTheme.bodySmall,
                               ),
                             ),
-                          ],
-                        ),
-                        onTap: () {
-                          Navigator.pop(context, item);
-                        },
-                      ),
-                    );
-                  },
+                            trailing: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  '${item.calories} kcal',
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            onTap: () {
+                              Navigator.pop(context, item);
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                    SizedBox(height: 50.h)
+                  ],
                 ),
               ),
             ],
@@ -110,7 +118,7 @@ class FoodSelectionScreen extends ConsumerWidget {
         )
           ,
         floatingActionButton: FloatingActionButton(
-          backgroundColor: AppColors.primary,
+          backgroundColor: AppColors.secondary,
           onPressed: () {
             showModalBottomSheet(
               context: context,
@@ -121,8 +129,8 @@ class FoodSelectionScreen extends ConsumerWidget {
               builder: (_) => const AddFoodBottomSheet(),
             );
           },
-          child: const Icon(Icons.add, color: AppColors.white),
           tooltip: AppStrings.addFoodEntry,
+          child: Icon(Icons.add, color: AppColors.white, size: 25.w),
         ),
       ),
     );

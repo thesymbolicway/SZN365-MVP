@@ -1,11 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:szn365/screens/dash_board/progress_bar.dart';
 import 'package:szn365/screens/dash_board/widgets.dart';
 import 'package:szn365/utils/colors.dart';
+import 'package:szn365/widgets/app_loader.dart';
 import '../../models/food_entry.dart';
-import '../../models/macro_data.dart';
+import '../../models/meal_entry.dart';
 import '../../providers/dash_provider.dart';
 import '../../utils/app_strings.dart';
 import '../../widgets/gradient_background.dart';
@@ -17,139 +19,135 @@ class DashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var meals = ref.watch(dashProvider);
-
-   return FutureBuilder<MacroData?>(
-      future: ref.read(dashProvider.notifier).getUserMacroGoal(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting && meals !=  AsyncLoading()) {
-          return Center(child: CupertinoActivityIndicator(
-              color: AppColors.primary));
-        } else if (snapshot.hasError) {
-          return Text('Error loading goals');
-        } else {
-          final macroData = snapshot.data;
+    double bottomPadding = MediaQuery.of(context).padding.bottom;
+    return Consumer(
+        builder: (_, ref, _) {
+          final macroData = ref.watch(dashProvider.select((s) => s.macroData));
           return GradientBackground(
-            child: Scaffold(
-              backgroundColor: Colors.transparent,
-              appBar: AppBar(
-                title:  Text(AppStrings.dashboard,style: Theme.of(context).appBarTheme.titleTextStyle,),
-                centerTitle: true,
-              ),
-              body: SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    Card(
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  "Goals: ${macroData?.goal??''}",
-                                  style: Theme.of(context).textTheme.labelLarge,
-                                ),
-                                Spacer()
-                                ,
-                                IconButton(onPressed: () {
-                                  Navigator.pushNamed(context, '/boarding');
-                                },
-                                  icon: Icon(Icons.edit),
-                                  iconSize: 18,
-                                  color: AppColors.white,)
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                buildGoalColumn(context,
-                                  AppStrings.calories,
-                                  "${macroData?.tdee.toInt()} kcal",
-                                  Icons.local_fire_department,
-                                ),
-                                buildGoalColumn(context,
-                                  AppStrings.protein,
-                                  "${macroData?.proteinGrams.toInt()} g",
-                                  Icons.restaurant_menu,
-                                ),
-                                buildGoalColumn(context,
-                                  AppStrings.carbs,
-                                  "${macroData?.carbGrams.toInt()} g",
-                                  Icons.bubble_chart,
-                                ),
-                                buildGoalColumn(context,
-                                  AppStrings.fats,
-                                  "${macroData?.fatGrams.toInt()} g",
-                                  Icons.opacity,
-                                ),
-                              ],
-                            ),
-                          ],
+            child: Stack(children: [
+              Scaffold(
+                backgroundColor: Colors.transparent,
+                appBar: AppBar(
+                  title:  Text(AppStrings.dashboard,style: Theme.of(context).appBarTheme.titleTextStyle,),
+                  centerTitle: true,
+                  //scrolledUnderElevation: 0,
+                ),
+                body: SingleChildScrollView(
+                  //physics: const ClampingScrollPhysics(),
+                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+                  child: Column(
+                    spacing: 15.h,
+                    children: [
+                      Card(
+                        elevation: 4,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.r),
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    meals.when(data: (meals) =>  Column(
-                      children: [
-                        Card(
-                          elevation: 3,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: buildProgressBar(
-                                    context,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    "Goals: ${macroData?.goal??''}",
+                                    style: Theme.of(context).textTheme.labelLarge,
+                                  ),
+                                  Spacer(),
+                                  IconButton(onPressed: () {
+                                    Navigator.pushNamed(context, '/boarding');
+                                  },
+                                    icon: Icon(Icons.edit),
+                                    iconSize: 20.w,
+                                    color: AppColors.white,
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 15.h),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  buildGoalColumn(context,
                                     AppStrings.calories,
-                                    ref.read(dashProvider.notifier).currentCalories / macroData!.tdee,
+                                    "${macroData?.tdee.toInt()} kcal",
+                                    Icons.local_fire_department,
                                   ),
-                                ),
-                                SizedBox(width: 12),
-                                Expanded(
-                                  child: buildProgressBar(
-                                    context,
+                                  buildGoalColumn(context,
                                     AppStrings.protein,
-                                    ref.read(dashProvider.notifier).currentProtein / macroData.proteinGrams,
+                                    "${macroData?.proteinGrams.toInt()} g",
+                                    Icons.restaurant_menu,
                                   ),
-                                ),
-                                SizedBox(width: 12),
-                                Expanded(
-                                  child: buildProgressBar(
-                                    context,
+                                  buildGoalColumn(context,
                                     AppStrings.carbs,
-                                    ref.read(dashProvider.notifier).currentCarbs / macroData.carbGrams,
+                                    "${macroData?.carbGrams.toInt()} g",
+                                    Icons.bubble_chart,
                                   ),
-                                ),
-                                SizedBox(width: 12),
-                                Expanded(
-                                  child: buildProgressBar(
-                                    context,
+                                  buildGoalColumn(context,
                                     AppStrings.fats,
-                                    ref.read(dashProvider.notifier).currentFats / macroData.fatGrams,
+                                    "${macroData?.fatGrams.toInt()} g",
+                                    Icons.opacity,
                                   ),
-                                ),
-                              ],
-                            ),
+                                ],
+                              ),
+                            ],
                           ),
-
                         ),
-                        const SizedBox(height: 20),
-                        Column(
+                      ),
+
+                      Consumer(builder: (context, ref, child) {
+                        List<MealEntry> meals = ref.watch(dashProvider.select((s) => s.mealsList));
+                        return meals.isNotEmpty ? Column(
+                          spacing: 15.h,
                           children: [
+                            Card(
+                              elevation: 3,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: buildProgressBar(
+                                        context,
+                                        AppStrings.calories,
+                                        ref.read(dashProvider.notifier).currentCalories / macroData!.tdee,
+                                      ),
+                                    ),
+                                    SizedBox(width: 12.w),
+                                    Expanded(
+                                      child: buildProgressBar(
+                                        context,
+                                        AppStrings.protein,
+                                        ref.read(dashProvider.notifier).currentProtein / macroData.proteinGrams,
+                                      ),
+                                    ),
+                                    SizedBox(width: 12.w),
+                                    Expanded(
+                                      child: buildProgressBar(
+                                        context,
+                                        AppStrings.carbs,
+                                        ref.read(dashProvider.notifier).currentCarbs / macroData.carbGrams,
+                                      ),
+                                    ),
+                                    SizedBox(width: 12.w),
+                                    Expanded(
+                                      child: buildProgressBar(
+                                        context,
+                                        AppStrings.fats,
+                                        ref.read(dashProvider.notifier).currentFats / macroData.fatGrams,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                            ),
+
                             buildFoodLogCard(context, ref, meals, (mealType) async {
                               final selected = await Navigator.push(
                                 context,
@@ -160,32 +158,31 @@ class DashboardScreen extends ConsumerWidget {
                               if (selected is FoodEntry) {
                                 ref.read(dashProvider.notifier).addFood(mealType, selected);
                               }
-                            })
-                            ,
-                            const SizedBox(height: 10),
+                            }),
+
                             buildPlaceholderCard(
                               AppStrings.mealPlan,
                               context,
                               width: double.infinity,
                             ),
-                            const SizedBox(height: 20),
-                          ],
-                        ),
-                      ],
-                    ),
-                      error: (e, st) => Text('Error: $e'),
-                      loading: () => Center(child: CupertinoActivityIndicator(
-                          color: AppColors.primary)),
-                    )
 
-                  ],
+                            SizedBox(height: 20),
+                          ],
+                        ) : SizedBox(height: bottomPadding + 15.h);
+                      }),
+                    ],
+                  ),
                 ),
               ),
-            ),
+
+              Consumer(builder: (context, ref, child) {
+                bool isLoading = ref.watch(dashProvider.select((s) => s.isLoading));
+                String text = ref.read(dashProvider.select((s) => s.loadingText));
+                return isLoading ? AppLoader(text: text) : SizedBox();
+              })
+            ]),
           );
         }
-      },
     );
-
   }
 }

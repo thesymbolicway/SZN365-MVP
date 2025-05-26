@@ -6,7 +6,7 @@ part of 'food_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$foodHash() => r'48dfe718d4ea83181fc7a924621d38e752a9b2a7';
+String _$foodHash() => r'6cd0b3669afff9f3f41f2dd929ab1c76c0cf31e8';
 
 /// See also [Food].
 @ProviderFor(Food)

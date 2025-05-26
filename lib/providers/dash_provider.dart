@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:equatable/equatable.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
 import '../models/macro_data.dart';
@@ -13,61 +13,103 @@ class Dash extends _$Dash {
   final FireBaseService service = FireBaseService();
 
   @override
-  Future<List<MealEntry>> build() async {
+  DashStates build() {
+    Future.microtask(() {
+      getUserMacroGoal();
+      getMealsList();
+    });
+    return const DashStates(isLoading: true);
+  }
 
-    final logs = await service.getUserFoodLogForDate(DateTime.now());
-    final mealTitles = ['Breakfast', 'Lunch', 'Snacks / Other', 'Dinner'];
+  Future<void> getMealsList() async {
+    try {
+      final logs = await service.getUserFoodLogForDate(DateTime.now());
+      final mealTitles = ['Breakfast', 'Lunch', 'Snacks / Other', 'Dinner'];
 
-    final Map<String, List<FoodEntry>> grouped = {
-      for (final title in mealTitles) title: [],
-    };
+      final Map<String, List<FoodEntry>> grouped = {
+        for (final title in mealTitles) title: [],
+      };
+      for (final meal in logs) {
+        grouped[meal.title] = meal.items;
+      }
+      List<MealEntry> list = mealTitles.map((title) => MealEntry(title: title, items: grouped[title]!)).toList();
 
-    for (final meal in logs) {
-      grouped[meal.title] = meal.items;
+      state = state.copyWith(mealsList: list, isLoading: false);
+    } catch (e) {
+      state = state.copyWith(isLoading: false);
+      // Handle error as needed
     }
-
-    return mealTitles
-        .map((title) => MealEntry(title: title, items: grouped[title]!))
-        .toList();
   }
 
-  Future<MacroData?> getUserMacroGoal() async {
-    final userId = service.getFirebaseUserId();
-    if (userId == null || userId.isEmpty) return null;
+  Future<void> loadUserMacroGoal() async {
+    try {
+      final userId = service.getFirebaseUserId();
+      if (userId == null || userId.isEmpty) {
+        state = state.copyWith(isLoading: false);
+        return;
+      }
 
-    return await service.getUserGoal(userId);
+      final macroGoal = await service.getUserGoal(userId);
+      state = state.copyWith(macroData: macroGoal, isLoading: false);
+    } catch (e) {
+      state = state.copyWith(isLoading: false);
+      // Handle error as needed
+    }
   }
 
+  Future<void> getUserMacroGoal() async {
+    try {
+      final userId = service.getFirebaseUserId();
+      if (userId == null || userId.isEmpty) {
+        state = state.copyWith(isLoading: false);
+        return;
+      }
 
-  void addFood(String mealType, FoodEntry item) {
+      MacroData? data = await service.getUserGoal(userId);
+      state = state.copyWith(macroData: data, isLoading: false);
+    } catch (e) {
+      state = state.copyWith(isLoading: false);
+      // Handle error as needed
+    }
+  }
+
+  Future<void> addFood(String mealType, FoodEntry item) async {
+    toggleLoading(true, "Adding");
+
     final date = DateTime.now();
-    item.copyWith(id: Uuid().v4());
-    service.addUserFoodLog(item, mealType,date);
-    final currentState = state.valueOrNull ?? [];
-    state = AsyncData([
-      for (final m in currentState)
-        if (m.title == mealType)
-          MealEntry(title: m.title, items: [...m.items, item])
+    final itemWithId = item.copyWith(id: const Uuid().v4());
+
+    await service.addUserFoodLog(itemWithId, mealType, date);
+
+    final currentMeals = state.mealsList;
+    final updatedMeals = [
+      for (final meal in currentMeals)
+        if (meal.title == mealType)
+          MealEntry(title: meal.title, items: [...meal.items, itemWithId])
         else
-          m
-    ]);
+          meal
+    ];
+    state = state.copyWith(mealsList: updatedMeals, isLoading: false);
   }
 
-  void removeFood(String mealType, FoodEntry item) async {
-    state = const AsyncLoading();
+  Future<void> removeFood(String mealType, FoodEntry item) async {
+    toggleLoading(true, "Removing");
 
     final date = DateTime.now();
-    await service.removeUserFoodLog(item, mealType,date);
-    final currentState = state.valueOrNull ?? [];
-    state = AsyncData([
-      for (final m in currentState)
-        if (m.title == mealType)
+    await service.removeUserFoodLog(item, mealType, date);
+
+    final currentMeals = state.mealsList;
+    final updatedMeals = [
+      for (final meal in currentMeals)
+        if (meal.title == mealType)
           MealEntry(
-              title: m.title,
-              items: m.items.where((i) => i != item).toList())
-        else
-          m
-    ]);
+            title: meal.title,
+            items: meal.items.where((i) => i.id != item.id).toList(),
+          )
+        else meal
+    ];
+
+    state = state.copyWith(mealsList: updatedMeals, isLoading: false);
   }
 
   double get currentCalories => _sum((item) => item.calories);
@@ -76,8 +118,43 @@ class Dash extends _$Dash {
   double get currentFats => _sum((item) => item.fats);
 
   double _sum(double Function(FoodEntry) extractor) {
-    final meals = state.valueOrNull ?? [];
+    final meals = state.mealsList;
     return meals.expand((meal) => meal.items).fold(0.0, (sum, item) => sum + extractor(item));
   }
 
+  void toggleLoading(bool flag, String loadingText) {
+    state = state.copyWith(isLoading: flag, loadingText: loadingText);
+  }
+}
+
+/// Dashboard States
+class DashStates extends Equatable {
+  final bool isLoading;
+  final String loadingText;
+  final List<MealEntry> mealsList;
+  final MacroData? macroData;
+
+  const DashStates({
+    this.isLoading = false,
+    this.loadingText = "Loading",
+    this.mealsList = const [],
+    this.macroData,
+  });
+
+  DashStates copyWith({
+    bool? isLoading,
+    String? loadingText,
+    List<MealEntry>? mealsList,
+    MacroData? macroData,
+  }) {
+    return DashStates(
+      isLoading: isLoading ?? this.isLoading,
+      loadingText: loadingText ?? this.loadingText,
+      mealsList: mealsList ?? this.mealsList,
+      macroData: macroData ?? this.macroData,
+    );
+  }
+
+  @override
+  List<Object?> get props => [isLoading, mealsList, macroData];
 }

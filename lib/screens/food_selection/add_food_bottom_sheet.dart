@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:szn365/widgets/app_widget.dart';
 import 'package:uuid/uuid.dart';
 import '../../models/food_entry.dart';
 import '../../providers/food_provider.dart';
@@ -24,11 +26,19 @@ class _AddFoodBottomSheetState extends ConsumerState<AddFoodBottomSheet> {
   final fatsController = TextEditingController();
   final caloriesController = TextEditingController();
 
+  bool _isLoading = false;
+
+  void _toggleLoading(bool flag) {
+    _isLoading = flag;
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
+    double bottomPadding = MediaQuery.of(context).padding.bottom;
     final inputDecoration = InputDecoration(
       filled: true,
-      fillColor: AppColors.primary.withOpacity(0.05),
+      fillColor: AppColors.primary.withValues(alpha: 0.05),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: AppColors.primary),
@@ -40,7 +50,8 @@ class _AddFoodBottomSheetState extends ConsumerState<AddFoodBottomSheet> {
     );
 
     return Padding(
-      padding: MediaQuery.of(context).viewInsets.add(const EdgeInsets.all(16)),
+      padding: MediaQuery.of(context).viewInsets.add(EdgeInsets.only(
+          left: 16.w, right: 16.w, bottom: (bottomPadding + 10.h), top: 16.h)),
       child: SingleChildScrollView(
         child: Form(
           key: _formKey,
@@ -58,11 +69,12 @@ class _AddFoodBottomSheetState extends ConsumerState<AddFoodBottomSheet> {
                   ),
                 ),
               ),
-               Text(
+              Text(
                 AppStrings.addFoodEntry,
                 style: Theme.of(context).textTheme.bodyLarge,
                 textAlign: TextAlign.center,
               ),
+              SizedBox(height: 25.h),
               TextFormField(
                 style:  Theme.of(context).textTheme.bodyMedium,
                 controller: nameController,
@@ -115,18 +127,19 @@ class _AddFoodBottomSheetState extends ConsumerState<AddFoodBottomSheet> {
                 ),
                 keyboardType: TextInputType.number,
               ),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      final name = nameController.text;
-                      final protein = double.tryParse(proteinController.text) ?? 0;
-                      final carbs = double.tryParse(carbsController.text) ?? 0;
-                      final fats = double.tryParse(fatsController.text) ?? 0;
-                      final calories = double.tryParse(caloriesController.text) ?? 0;
-                      final date = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
-                      final entry = FoodEntry(
+              Padding(padding: EdgeInsets.only(top: 8.h),
+                child: buildAppButton(
+                  context, label: "Add Food", icon: Icons.add, height: 40, radius: 10, isLoading: _isLoading,
+                  callback: () async {
+                  _toggleLoading(true);
+                  if (_formKey.currentState!.validate()) {
+                    final name = nameController.text;
+                    final protein = double.tryParse(proteinController.text) ?? 0;
+                    final carbs = double.tryParse(carbsController.text) ?? 0;
+                    final fats = double.tryParse(fatsController.text) ?? 0;
+                    final calories = double.tryParse(caloriesController.text) ?? 0;
+                    final date = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+                    final entry = FoodEntry(
                         id: Uuid().v4(),
                         foodName: name,
                         protein: protein,
@@ -139,27 +152,16 @@ class _AddFoodBottomSheetState extends ConsumerState<AddFoodBottomSheet> {
                         date: Timestamp.fromDate(date),
                         time: Timestamp.now(),
                         isDeleted: false
-                      );
+                    );
 
-                      ref.read(foodProvider.notifier).addFood(entry);
-                  //    ref.read(mealProvider.notifier).addFoodList(entry);
-                      Navigator.pop(context);
-                    }
-                  },
-                  icon: const Icon(Icons.add),
-                  label: const Text(AppStrings.addFood),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: AppColors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    textStyle: Theme.of(context).textTheme.bodyMedium,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
+                    final navigator = Navigator.of(context);
+
+                    await ref.read(foodProvider.notifier).addFood(entry);
+
+                    navigator.pop();
+                  }
+                }),
               ),
-              SizedBox(height: 16,)
             ],
           ),
         ),

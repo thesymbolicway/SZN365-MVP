@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:szn365/widgets/animated_progress_indicator.dart';
 
 import '../../utils/colors.dart';
 
@@ -25,30 +27,21 @@ Widget buildProgressBar(BuildContext context,String label, double progress) {
     children: [
       Text(
         label,
-        style: Theme.of(context).textTheme.bodyMedium,
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 12.sp),
       ),
-      const SizedBox(height: 5),
+      SizedBox(height: 10.h),
       Stack(
         alignment: Alignment.center,
         children: [
-          SizedBox(
-            width: 80,
-            height: 80,
-            child: CircularProgressIndicator(
-              value: progress,
-              strokeWidth: 6,
-              backgroundColor: Colors.grey[300],
-              color: progressColor,
-            ),
-          ),
+          AnimatedProgressIndicator(targetProgress: progress, progressColor: progressColor),
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 '${(progress * 100).toInt()}%',
-                  style: Theme.of(context).textTheme.bodySmall,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12.sp),
               ),
-              Text(emoji, style: const TextStyle(fontSize: 20)),
+              Text(emoji, style: TextStyle(fontSize: 20.sp)),
             ],
           ),
         ],

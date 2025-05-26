@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../models/meal_entry.dart';
 import '../../providers/dash_provider.dart';
 import '../../utils/colors.dart';
@@ -14,10 +15,10 @@ Widget buildFoodLogCard(
 
   return Card(
     elevation: 4,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-    margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.r)),
+    margin: EdgeInsets.symmetric(horizontal: 4.w),
     child: Padding(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(10.w),
       child: Column(
         children: meals.map((meal) {
           return Column(
@@ -25,7 +26,7 @@ Widget buildFoodLogCard(
             children: [
               // Meal Header
               Padding(
-                padding: const EdgeInsets.only(top: 8, bottom: 8),
+                padding: EdgeInsets.only(top: 5.h, bottom: 5.h, left: 8.w),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -36,7 +37,7 @@ Widget buildFoodLogCard(
                     Row(
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.add_circle_outline, color: Colors.white, size: 20),
+                          icon: Icon(Icons.add_circle_outline, color: Colors.white, size: 25.w),
                           onPressed: () => onAddFood(meal.title),
                           tooltip: 'Add food to ${meal.title}',
                           visualDensity: VisualDensity.compact,
@@ -50,10 +51,18 @@ Widget buildFoodLogCard(
               // Food Items
               ...meal.items.map((item) {
                 return Dismissible(
-                  key: ValueKey(item.hashCode),
+                  key: ValueKey(item.id ?? item.hashCode),
                   direction: DismissDirection.endToStart,
-                  onDismissed: (_) {
-                    ref.read(dashProvider.notifier).removeFood(meal.title, item);
+                  dismissThresholds: const {
+                    DismissDirection.endToStart: 0.3, // Require 30% swipe to dismiss
+                  },
+                  confirmDismiss: (direction) async {
+                    return true;
+                  },
+                  onDismissed: (direction) {
+                    Future.microtask(() {
+                      ref.read(dashProvider.notifier).removeFood(meal.title, item);
+                    });
                   },
                   background: Container(
                     decoration: BoxDecoration(
@@ -79,10 +88,10 @@ Widget buildFoodLogCard(
                       subtitle: Padding(
                         padding: const EdgeInsets.only(top: 4.0),
                         child: Text(
-                            'P:${item.protein} | C:${item.carbs} | F:${item.fats}',
-                            style: Theme.of(context).textTheme.bodySmall),
+                          'P:${item.protein} | C:${item.carbs} | F:${item.fats}',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
                       ),
-
                       trailing: Text(
                         '${item.calories} kcal',
                         style: theme.textTheme.bodySmall?.copyWith(
@@ -94,7 +103,7 @@ Widget buildFoodLogCard(
                     ),
                   ),
                 );
-              }).toList(),
+              }),
 
               // Divider Between Meals
               if (meal != meals.last) const Divider(height: 20, thickness: 0.8),
@@ -107,13 +116,16 @@ Widget buildFoodLogCard(
 }
 
 Widget buildGoalColumn(BuildContext context,String title, String value, IconData icon) {
-  return Column(
-    children: [
-      Icon(icon, size: 30, color: AppColors.primary),
-      const SizedBox(height: 6),
-      Text(title, style: Theme.of(context).textTheme.bodyMedium,),
-      Text(value, style: Theme.of(context).textTheme.bodyLarge,),
-    ],
+  return Expanded(
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 35.w, color: AppColors.primary),
+        SizedBox(height: 6.h),
+        Text(title, style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14.sp)),
+        Text(value, style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 14.sp)),
+      ],
+    ),
   );
 }
 

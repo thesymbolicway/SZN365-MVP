@@ -22,7 +22,7 @@ class Food extends _$Food {
     state = AsyncData([...state.value ?? [], food]);
   }
 
-  Future<void> addGlobleFoodList(FoodEntry food) async {
+  Future<void> addGlobalFoodList(FoodEntry food) async {
     await _service.addFoodEntry(food);
     state = AsyncData([...state.value ?? [], food]);
   }
@@ -90,7 +90,7 @@ class Food extends _$Food {
 
   Future<void> uploadGlobalFoodList(List<FoodEntry> foodList) async {
     for (final food in foodList) {
-      await addGlobleFoodList(food);
+      await addGlobalFoodList(food);
     }
   }
 

@@ -1,6 +1,4 @@
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:szn365/utils/colors.dart';
 import 'package:uuid/uuid.dart';
 import '../models/app_data.dart';
 import '../models/macro_data.dart';
@@ -88,7 +86,6 @@ class User extends _$User {
     );
 
     await _fireBaseService.setUserGoal(userGoal);
-
   }
 
   void updateUserLocally(AppUser updatedUser) {

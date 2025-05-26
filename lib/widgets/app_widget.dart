@@ -1,5 +1,5 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../utils/colors.dart';
 
 Widget buildTextField({
@@ -53,40 +53,62 @@ InputDecoration dropdownDecoration({required IconData icon}) {
   );
 }
 
-Widget buildAppButton(
-    BuildContext context, {
-      required VoidCallback callback,
-      required String label,
-      required IconData icon,
-    }) {
-  return Container(
-    width: double.infinity,
-    decoration: BoxDecoration(
-      gradient: const LinearGradient(
-        colors: [
-          AppColors.limeGreen,
-          AppColors.buttonGradient,
-        ],
-        begin: Alignment.centerLeft,
-        end: Alignment.centerRight,
+Widget buildAppButton(BuildContext context, {
+  required VoidCallback callback,
+  required String label,
+  IconData? icon,
+  bool isLoading = false,
+  double height = 43,
+  double radius = 14,
+}) {
+  return GestureDetector(
+    onTap: isLoading ? null : callback,
+    child: Container(
+      width: double.infinity,
+      height: height.h,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [
+            AppColors.limeGreen,
+            AppColors.buttonGradient,
+          ],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        borderRadius: BorderRadius.circular(radius.r),
       ),
-      borderRadius: BorderRadius.circular(14),
-    ),
-    child: ElevatedButton.icon(
-      icon: Icon(icon, size: 24, color: AppColors.white),
-      label: Text(
-        label,
-          style: Theme.of(context).textTheme.bodyMedium,
-      ),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.transparent,
-        shadowColor: Colors.transparent,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
+      child: Container(
+        color: Colors.black.withValues(alpha: 0.2),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            return FadeTransition(
+              opacity: animation,
+              child: ScaleTransition(
+                scale: animation,
+                child: child,
+              ),
+            );
+          },
+          child: !isLoading ? Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            if(icon != null) ...[
+              Icon(icon),
+              SizedBox(width: 10.w),
+            ],
+            Text(
+              label,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ]) : Center(
+            key: const ValueKey('loading'), // Important: unique keys for each child
+            child: SizedBox(
+                width: 23.w,
+                height: 23.w,
+                child: CircularProgressIndicator(color: AppColors.white)
+            )
+          ),
         ),
       ),
-      onPressed: callback,
     ),
   );
 }

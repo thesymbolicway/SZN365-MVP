@@ -195,7 +195,7 @@ class FireBaseService {
     };
 
     for (final entry in allItems) {
-      final meal = entry.mealType ?? 'Snacks / Other';
+      final meal = entry.mealType;
       if (grouped.containsKey(meal)) {
         grouped[meal]!.add(entry);
       } else {

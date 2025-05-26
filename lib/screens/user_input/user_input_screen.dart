@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:szn365/models/app_data.dart';
 import 'package:szn365/services/firestore_service.dart';
@@ -11,7 +11,6 @@ import '../../utils/colors.dart';
 import '../../utils/validators.dart';
 import '../../widgets/app_widget.dart';
 import '../../widgets/gradient_background.dart';
-import '../dash_board/dashboard_screen.dart';
 import 'height_picker_bottom_sheet.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -33,6 +32,7 @@ class _UserInputScreenState extends ConsumerState<UserInputScreen> {
   /// Focus nodes to control text filed focus
   final FocusNode _ageFocus = FocusNode();
 
+  bool _isLoading = false;
   final _formKey = GlobalKey<FormState>();
   String heightDisplay = AppStrings.height;
   String gender = AppStrings.male;
@@ -42,6 +42,11 @@ class _UserInputScreenState extends ConsumerState<UserInputScreen> {
   double weight = 0;
   double height = 0;
   int age = 0;
+
+  void _toggleLoading(bool flag) {
+    _isLoading = flag;
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +67,7 @@ class _UserInputScreenState extends ConsumerState<UserInputScreen> {
         ),
         body: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(20.w),
             child: Form(
               key: _formKey,
               child: Column(
@@ -72,7 +77,7 @@ class _UserInputScreenState extends ConsumerState<UserInputScreen> {
                     AppStrings.personalInfo,
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 20.h),
                   buildTextField(
                     controller: _weightCont,
                     showDecimal: true,
@@ -188,12 +193,13 @@ class _UserInputScreenState extends ConsumerState<UserInputScreen> {
                     context,
                     label: AppStrings.continueText,
                     icon: Icons.arrow_forward,
+                    isLoading: _isLoading,
                     callback: ()  async {
                       setState(() {
                         isHeightValid = selectedHeightInCm > 0;
                       });
                       if (_formKey.currentState!.validate() && isHeightValid) {
-
+                        _toggleLoading(true);
                         final user = AppUser(
                           id: FirebaseAuth.instance.currentUser?.uid,
                           weight: weight.toString(),
@@ -205,17 +211,12 @@ class _UserInputScreenState extends ConsumerState<UserInputScreen> {
                         );
                         await userRef.setUser(user);
 
-                        await  userRef.getTDECalculation(user);
+                        await userRef.getTDECalculation(user);
 
                         final prefs = await SharedPreferences.getInstance();
                         prefs.setString('userId', FireBaseService().getFirebaseUserId()??'');
 
-                        Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          '/dashboard',
-                              (route) => false,
-                        );
-
+                        Navigator.pushNamedAndRemoveUntil(context, '/dashboard', (route) => false);
                       }
                     },
                   ),

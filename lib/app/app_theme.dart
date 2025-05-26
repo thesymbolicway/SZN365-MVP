@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:szn365/utils/colors.dart';
 
 class AppTheme {
@@ -18,25 +19,24 @@ class AppTheme {
         ),
         bodyLarge: TextStyle(
           fontWeight: FontWeight.w600,
-          fontSize: 16,
-          //    color: AppColors.grayText,
+          fontSize: 15.sp,
           color: AppColors.white,
         ),
         bodyMedium: TextStyle(
           fontWeight: FontWeight.w500,
-          fontSize: 16,
+          fontSize: 15.sp,
           //    color: AppColors.grayText,
           color: AppColors.white,
         ),
         bodySmall: TextStyle(
           fontWeight: FontWeight.w400,
-          fontSize: 14,
+          fontSize: 12.sp,
           //color: AppColors.grayText,
-          color: AppColors.white.withOpacity(0.7),
+          color: AppColors.white.withValues(alpha: 0.7),
         ),
         labelLarge: TextStyle(
           fontWeight: FontWeight.w700,
-          fontSize: 18,
+          fontSize: 18.sp,
           color: AppColors.limeGreen,
         ),
       ),
