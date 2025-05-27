@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:path/path.dart';
 
 import '../../utils/app_strings.dart';
 import '../../utils/colors.dart';
@@ -18,10 +17,10 @@ class MealPlanScreen extends StatelessWidget {
           title: Text(AppStrings.mealPlan,style:
           Theme.of(context).appBarTheme.titleTextStyle), centerTitle: true),
         body: Padding(
-          padding:  EdgeInsets.all(20.0.w),
+          padding:  EdgeInsets.all(15.w),
           child: Column(
             children: [
-              _buildMealPlanCard(context,AppStrings.breakfast,
+              _buildMealPlanCard(context, AppStrings.breakfast,
                   "Scrambled eggs, toast, and coffee",'09:00 AM'),
               SizedBox(height: 16.h),
               _buildMealPlanCard(context,AppStrings.lunch,
@@ -41,7 +40,7 @@ class MealPlanScreen extends StatelessWidget {
       elevation: 8.sp,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.r)),
       child: Padding(
-        padding: EdgeInsets.all(16.0.w),
+        padding: EdgeInsets.all(16.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -53,14 +52,13 @@ class MealPlanScreen extends StatelessWidget {
             Text(description, style: Theme.of(context).textTheme.bodyMedium?.
               copyWith(fontSize: 14.sp)),
 
-             SizedBox(height: 10.h),
+              SizedBox(height: 10.h),
 
-            Row(children: [
+              Row(children: [
                 Icon(Icons.access_time, size: 16.w, color: AppColors.primary),
-                SizedBox(width: 8.h),
-                Text(timeText,  style: Theme.of(context).textTheme.bodySmall,),
+                SizedBox(width: 8.w),
+                Text(timeText,  style: Theme.of(context).textTheme.bodySmall),
               ],
-
             ),
           ],
         ),

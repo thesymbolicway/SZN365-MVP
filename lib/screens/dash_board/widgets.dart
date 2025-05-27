@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
+import 'package:szn365/routes/routes_name.dart';
 import '../../models/meal_entry.dart';
 import '../../providers/dash_provider.dart';
 import '../../utils/colors.dart';
@@ -49,61 +51,69 @@ Widget buildFoodLogCard(
               ),
 
               // Food Items
-              ...meal.items.map((item) {
-                return Dismissible(
-                  key: ValueKey(item.id ?? item.hashCode),
-                  direction: DismissDirection.endToStart,
-                  dismissThresholds: const {
-                    DismissDirection.endToStart: 0.3, // Require 30% swipe to dismiss
-                  },
-                  confirmDismiss: (direction) async {
-                    return true;
-                  },
-                  onDismissed: (direction) {
-                    Future.microtask(() {
-                      ref.read(dashProvider.notifier).removeFood(meal.title, item);
-                    });
-                  },
-                  background: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    alignment: Alignment.centerRight,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: const Icon(Icons.delete, color: Colors.white, size: 20),
-                  ),
-                  child: Card(
-                    margin: const EdgeInsets.symmetric(vertical: 4),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    elevation: 1,
-                    shadowColor: AppColors.white,
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 1),
-                      dense: true,
-                      title: Text(
-                        item.foodName,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      subtitle: Padding(
-                        padding: const EdgeInsets.only(top: 4.0),
-                        child: Text(
-                          'P:${item.protein} | C:${item.carbs} | F:${item.fats}',
-                          style: Theme.of(context).textTheme.bodySmall,
+              AnimatedSize(
+                duration: Duration(milliseconds: 300),
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  if (meal.items.isNotEmpty)
+                    ...meal.items.map((item) {
+                      return Dismissible(
+                        key: ValueKey(item.id ?? item.hashCode),
+                        direction: DismissDirection.endToStart,
+                        dismissThresholds: const {
+                          DismissDirection.endToStart: 0.3,
+                        },
+                        confirmDismiss: (direction) async {
+                          return true;
+                        },
+                        onDismissed: (direction) {
+                          Future.microtask(() {
+                            ref.read(dashProvider.notifier).removeFood(meal.title, item);
+                          });
+                        },
+                        background: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: const Icon(Icons.delete, color: Colors.white, size: 20),
                         ),
-                      ),
-                      trailing: Text(
-                        '${item.calories} kcal',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                          fontSize: 12,
+                        child: Card(
+                          margin: const EdgeInsets.symmetric(vertical: 4),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          elevation: 1,
+                          shadowColor: AppColors.white,
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 1),
+                            dense: true,
+                            title: Text(
+                              item.foodName,
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                            subtitle: Padding(
+                              padding: const EdgeInsets.only(top: 4.0),
+                              child: Text(
+                                'P:${item.protein} | C:${item.carbs} | F:${item.fats}',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ),
+                            trailing: Text(
+                              '${item.calories} kcal',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.primary,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
-                );
-              }),
+                      );
+                    })
+                    else
+                      const SizedBox(width: double.infinity),
+                ]),
+              ),
 
               // Divider Between Meals
               if (meal != meals.last) const Divider(height: 20, thickness: 0.8),
@@ -132,11 +142,7 @@ Widget buildGoalColumn(BuildContext context,String title, String value, IconData
 Widget buildPlaceholderCard(String title,BuildContext context,{double? width}) {
   return GestureDetector(
     onTap: () {
-      if (title == 'Food Log') {
-        Navigator.pushNamed(context, '/food-log');
-      } else if (title == 'Meal Plan') {
-        Navigator.pushNamed(context, '/meal_plan');
-      }
+      context.push(RoutesName.MEAL_PLAN);
     },
     child: Card(
       elevation: 3,

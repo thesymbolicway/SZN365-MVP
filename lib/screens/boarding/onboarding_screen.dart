@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
+import 'package:szn365/routes/routes_name.dart';
 import '../../utils/app_strings.dart';
 import '../../utils/colors.dart';
 import '../../widgets/app_widget.dart';
@@ -12,11 +14,9 @@ class OnboardingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: AppColors.textLight,
       appBar: AppBar(
         title: Text(AppStrings.welcome, style: Theme.of(context).appBarTheme.titleTextStyle,),
         backgroundColor: theme.appBarTheme.backgroundColor ?? AppColors.primary,
-        foregroundColor: theme.appBarTheme.foregroundColor ?? AppColors.white,
         elevation: 0,
       ),
 
@@ -49,8 +49,7 @@ class OnboardingScreen extends StatelessWidget {
                 label: AppStrings.goalLose,
                 icon: Icons.trending_down,
                 callback: () {
-                  Navigator.pushNamed(
-                    context, '/input', arguments: AppStrings.goalLose,);
+                  context.push(RoutesName.USER_INPUT, extra: AppStrings.goalLose);
                 }
               ),
 
@@ -60,20 +59,18 @@ class OnboardingScreen extends StatelessWidget {
                 label: AppStrings.goalGain,
                 icon: Icons.fitness_center,
                 callback: () {
-                  Navigator.pushNamed(
-                    context, '/input', arguments: AppStrings.goalGain,);
+                  context.push(RoutesName.USER_INPUT, extra: AppStrings.goalGain);
                 }
               ),
 
               SizedBox(height: 12.h),
               buildAppButton(
-                  context,
-                  label: AppStrings.goalMaintain,
-                  icon: Icons.monitor_heart_outlined,
-                  callback: () {
-                    Navigator.pushNamed(
-                      context, '/input', arguments: AppStrings.goalMaintain,);
-                  }
+                context,
+                label: AppStrings.goalMaintain,
+                icon: Icons.monitor_heart_outlined,
+                callback: () {
+                  context.push(RoutesName.USER_INPUT, extra: AppStrings.goalMaintain);
+                }
               ),
             ],
           ),

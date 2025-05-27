@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:szn365/models/app_data.dart';
+import 'package:szn365/routes/routes_name.dart';
 import 'package:szn365/services/firestore_service.dart';
+import 'package:go_router/go_router.dart';
 import '../../consts/constant.dart';
 import '../../providers/user_provider.dart';
 import '../../utils/app_strings.dart';
@@ -216,7 +218,7 @@ class _UserInputScreenState extends ConsumerState<UserInputScreen> {
                         final prefs = await SharedPreferences.getInstance();
                         prefs.setString('userId', FireBaseService().getFirebaseUserId()??'');
 
-                        Navigator.pushNamedAndRemoveUntil(context, '/dashboard', (route) => false);
+                        context.go(RoutesName.DASHBOARD);
                       }
                     },
                   ),

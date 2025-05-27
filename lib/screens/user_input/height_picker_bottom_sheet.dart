@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../utils/app_strings.dart';
 import '../../utils/colors.dart';
 import '../../widgets/app_widget.dart';
@@ -63,7 +64,7 @@ class _HeightPickerBottomSheetState extends State<HeightPickerBottomSheet> {
                   double finalHeightInCm =
                       isCm ? cm.toDouble() : ((feet * 12 + inches) * 2.54);
                   widget.onHeightSelected(finalHeightInCm);
-                  Navigator.pop(context);
+                  context.pop();
                 },
               ),
             ],

@@ -8,27 +8,28 @@ class SznApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-      return ScreenUtilInit(
-        designSize: const Size(360, 690),
-        minTextAdapt: true,
-        splitScreenMode: true,
-        builder: (_, _) {
-          return MaterialApp(
-            debugShowCheckedModeBanner: false,
-            title: 'SZN 365',
-            theme: AppTheme.darkTheme,
-            initialRoute: '/',
-            onGenerateRoute: onGenerateRoute,
-            builder: (context, child) {
-              // Fix text scale factor to 1.0
-              return MediaQuery(
-                data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
-                child: child!,
-              );
-            },
-          );
-        }
-      );
-    }
+    precacheImage(const AssetImage('assets/app_logo_3.png'), context);
+    return ScreenUtilInit(
+      designSize: const Size(360, 690),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (_, _) {
+        return MaterialApp.router(
+          debugShowCheckedModeBanner: false,
+          title: 'SZN 365',
+          themeMode: ThemeMode.dark,
+          darkTheme: AppTheme.darkTheme,
+          routerConfig: router,
+          builder: (context, child) {
+            // Fix text scale factor to 1.0
+            return MediaQuery(
+              data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
+              child: child!,
+            );
+          },
+        );
+      }
+    );
   }
+}
 

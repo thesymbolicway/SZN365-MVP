@@ -127,7 +127,6 @@ class FireBaseService {
   Future<void> updateDailyGoalStatus(DateTime date) async {
     final userId = getFirebaseUserId();
     if (userId == null) return;
-    await Future.delayed(Duration(seconds: 1));
     final snapshot = await _db
         .collection(Constant.foodLogsTable)
         .where('userId', isEqualTo: userId)

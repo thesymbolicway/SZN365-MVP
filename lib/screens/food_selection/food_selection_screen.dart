@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import '../../providers/food_provider.dart';
 import '../../utils/app_strings.dart';
 import '../../utils/colors.dart';
@@ -99,7 +100,7 @@ class FoodSelectionScreen extends ConsumerWidget {
                               ],
                             ),
                             onTap: () {
-                              Navigator.pop(context, item);
+                              context.pop(item);
                             },
                           ),
                         );

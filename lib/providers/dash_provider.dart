@@ -35,6 +35,7 @@ class Dash extends _$Dash {
       List<MealEntry> list = mealTitles.map((title) => MealEntry(title: title, items: grouped[title]!)).toList();
 
       state = state.copyWith(mealsList: list, isLoading: false);
+      calculateNutritionSum();
     } catch (e) {
       state = state.copyWith(isLoading: false);
       // Handle error as needed
@@ -90,6 +91,7 @@ class Dash extends _$Dash {
           meal
     ];
     state = state.copyWith(mealsList: updatedMeals, isLoading: false);
+    calculateNutritionSum();
   }
 
   Future<void> removeFood(String mealType, FoodEntry item) async {
@@ -108,14 +110,18 @@ class Dash extends _$Dash {
           )
         else meal
     ];
-
     state = state.copyWith(mealsList: updatedMeals, isLoading: false);
+    calculateNutritionSum();
   }
 
-  double get currentCalories => _sum((item) => item.calories);
-  double get currentProtein => _sum((item) => item.protein);
-  double get currentCarbs => _sum((item) => item.carbs);
-  double get currentFats => _sum((item) => item.fats);
+  void calculateNutritionSum() {
+    double calories = _sum((item) => item.calories);
+    double protein = _sum((item) => item.protein);
+    double carbs = _sum((item) => item.carbs);
+    double fats = _sum((item) => item.fats);
+    state = state.copyWith(nutritionSummary: NutritionSummary(
+        calories: calories, protein: protein, carbs: carbs, fats: fats));
+  }
 
   double _sum(double Function(FoodEntry) extractor) {
     final meals = state.mealsList;
@@ -133,12 +139,14 @@ class DashStates extends Equatable {
   final String loadingText;
   final List<MealEntry> mealsList;
   final MacroData? macroData;
+  final NutritionSummary nutritionSummary;
 
   const DashStates({
     this.isLoading = false,
     this.loadingText = "Loading",
     this.mealsList = const [],
     this.macroData,
+    this.nutritionSummary = const NutritionSummary(),
   });
 
   DashStates copyWith({
@@ -146,15 +154,32 @@ class DashStates extends Equatable {
     String? loadingText,
     List<MealEntry>? mealsList,
     MacroData? macroData,
+    NutritionSummary? nutritionSummary,
   }) {
     return DashStates(
       isLoading: isLoading ?? this.isLoading,
       loadingText: loadingText ?? this.loadingText,
       mealsList: mealsList ?? this.mealsList,
       macroData: macroData ?? this.macroData,
+      nutritionSummary: nutritionSummary ?? this.nutritionSummary,
     );
   }
 
   @override
-  List<Object?> get props => [isLoading, mealsList, macroData];
+  List<Object?> get props => [isLoading, loadingText, mealsList, macroData, nutritionSummary];
 }
+
+class NutritionSummary {
+  final double calories;
+  final double protein;
+  final double carbs;
+  final double fats;
+
+  const NutritionSummary({
+    this.calories = 0,
+    this.protein = 0,
+    this.carbs = 0,
+    this.fats = 0,
+  });
+}
+

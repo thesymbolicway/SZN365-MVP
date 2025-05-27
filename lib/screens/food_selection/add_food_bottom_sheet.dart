@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:szn365/widgets/app_widget.dart';
 import 'package:uuid/uuid.dart';
+import 'package:go_router/go_router.dart';
 import '../../models/food_entry.dart';
 import '../../providers/food_provider.dart';
 import '../../services/firestore_service.dart';
@@ -154,11 +155,9 @@ class _AddFoodBottomSheetState extends ConsumerState<AddFoodBottomSheet> {
                         isDeleted: false
                     );
 
-                    final navigator = Navigator.of(context);
-
                     await ref.read(foodProvider.notifier).addFood(entry);
 
-                    navigator.pop();
+                    context.pop();
                   }
                 }),
               ),

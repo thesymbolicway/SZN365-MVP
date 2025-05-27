@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:szn365/routes/routes_name.dart';
 
 import '../../widgets/gradient_background.dart';
 
@@ -26,9 +28,9 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!mounted) return;
 
     if (userId != null && userId.isNotEmpty) {
-      Navigator.pushReplacementNamed(context, '/dashboard');
+      context.go(RoutesName.DASHBOARD);
     } else {
-      Navigator.pushReplacementNamed(context, '/boarding');
+      context.go(RoutesName.BOARDING);
     }
   }
 
